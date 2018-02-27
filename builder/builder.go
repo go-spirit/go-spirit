@@ -3,6 +3,7 @@ package builder
 import (
 	"bytes"
 	"fmt"
+	"github.com/pborman/uuid"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -201,7 +202,14 @@ func (p *Project) Build() (err error) {
 	}
 
 	mainName := fmt.Sprintf("main_spirit_%s.go", p.Name)
-	mainPath := filepath.Join(os.TempDir(), mainName)
+	workdir := fmt.Sprintf(os.TempDir(), uuid.New())
+
+	err = os.MkdirAll(workdir, 0755)
+	if err != nil {
+		return
+	}
+
+	mainPath := filepath.Join(workdir, mainName)
 
 	mainSrc := strings.Replace(mainTmpl, "##imports##", buf.String(), 1)
 
@@ -212,6 +220,8 @@ func (p *Project) Build() (err error) {
 	}
 
 	defer os.Remove(mainPath)
+
+	utils.ExecCommandWD("go", workdir, "get", "-d")
 
 	appendArgs := p.conf.GetStringList("build-args")
 

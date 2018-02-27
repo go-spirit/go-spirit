@@ -6,18 +6,23 @@ spirit build is a tools for build spirit component
 #### install
 
 ```bash
-go get github.com/go-spirit/spirit
 go get github.com/go-spirit/spirit-builder
+```
+
+> if do not install, please run 
+
+```bash
 go install github.com/go-spirit/spirit-builder
 ```
+
 
 #### update
 
 ```bash
-go get -u github.com/go-spirit/spirit
 go get -u github.com/go-spirit/spirit-builder
-go install github.com/go-spirit/spirit-builder
 ```
+
+
 
 ## Run todo project
 
