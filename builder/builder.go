@@ -3,12 +3,12 @@ package builder
 import (
 	"bytes"
 	"fmt"
-	"github.com/pborman/uuid"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/pborman/uuid"
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-spirit/spirit-builder/builder/fetcher"

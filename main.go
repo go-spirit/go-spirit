@@ -18,10 +18,12 @@ import (
 
 func main() {
 	app := cli.NewApp()
+	app.Usage = "spirit project builder"
 
 	app.Commands = cli.Commands{
 		cli.Command{
 			Name:   "pull",
+			Usage:  "pull project repositories",
 			Action: pull,
 			Flags: []cli.Flag{
 				cli.StringFlag{
@@ -36,14 +38,15 @@ func main() {
 		},
 		cli.Command{
 			Name:   "build",
+			Usage:  "build project",
 			Action: build,
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name:  "config",
+					Name:  "config, c",
 					Usage: "config file",
 				},
 				cli.StringSliceFlag{
-					Name:  "name",
+					Name:  "name, n",
 					Usage: "project name",
 				},
 			},
