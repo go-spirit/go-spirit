@@ -201,20 +201,21 @@ func (p *Project) Build() (err error) {
 	}
 
 	mainName := fmt.Sprintf("main_spirit_%s.go", p.Name)
+	mainPath := filepath.Join(os.TempDir(), mainName)
 
 	mainSrc := strings.Replace(mainTmpl, "##imports##", buf.String(), 1)
 
-	err = ioutil.WriteFile(mainName, []byte(mainSrc), 0644)
+	err = ioutil.WriteFile(mainPath, []byte(mainSrc), 0644)
 	if err != nil {
-		err = fmt.Errorf("write %s failure: %s", mainName, err)
+		err = fmt.Errorf("write %s failure to temp dir: %s", mainName, err)
 		return
 	}
 
-	defer os.Remove(mainName)
+	defer os.Remove(mainPath)
 
 	appendArgs := p.conf.GetStringList("build-args")
 
-	args := []string{"build", "-o", filepath.Join(cwd, p.Name), mainName}
+	args := []string{"build", "-o", filepath.Join(cwd, p.Name), mainPath}
 
 	args = append(args, appendArgs...)
 
