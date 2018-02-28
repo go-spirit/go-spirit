@@ -231,7 +231,7 @@ func (p *Project) Build() (err error) {
 
 	defer os.Remove(mainPath)
 
-	utils.ExecCommandWD("go", workdir, "get", "-d")
+	utils.ExecCommandSTDWD("go", workdir, "get", "-d")
 
 	appendArgs := p.conf.GetStringList("build-args")
 

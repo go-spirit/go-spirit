@@ -1,7 +1,6 @@
 package goget
 
 import (
-	"fmt"
 	"os"
 	"path"
 
@@ -38,51 +37,51 @@ func NewGoGetFetcher(conf config.Configuration) (f fetcher.Fetcher, err error) {
 func (p *GoGetFetcher) Fetch(url, revision string, update bool, repoConf config.Configuration) (err error) {
 
 	args := repoConf.GetStringList("args")
+	gopath := p.conf.GetString("gopath", os.Getenv("GOPATH"))
+	repoDir := path.Join(gopath, "src", url)
+
+	exist, err := utils.DirExist(repoDir)
+	if err != nil {
+		return
+	}
+
+	if !exist {
+
+		err = utils.GoGet(url, args...)
+		if err != nil {
+			return
+		}
+
+		update = false
+
+		logrus.WithField("fetcher", "goget").WithField("url", url).WithField("revision", revision).Infoln("fetched")
+	}
+
+	err = utils.GitCheckout(repoDir, revision)
+	if err != nil {
+		return
+	}
+
+	logrus.WithField("fetcher", "goget").WithField("url", url).WithField("revision", revision).Infoln("checked out")
 
 	if update {
-		found := false
-		for i := 0; i < len(args); i++ {
-			if args[i] == "-u" {
-				found = true
-				break
+
+		var deteched bool
+		deteched, err = utils.GitDetached(repoDir)
+		if err != nil {
+			return
+		}
+
+		if !deteched {
+			err = utils.GitPull(repoDir)
+			if err != nil {
+				return
 			}
+			logrus.WithField("fetcher", "goget").WithField("url", url).WithField("revision", revision).Infoln("updated")
+		} else {
+			logrus.WithField("fetcher", "goget").WithField("url", url).WithField("revision", revision).Warnln("git detetched, update skipped")
 		}
-
-		if !found {
-			args = append(args, "-u")
-		}
 	}
-
-	cmdArgs := []string{"get"}
-
-	cmdArgs = append(cmdArgs, args...)
-	cmdArgs = append(cmdArgs, url)
-
-	result, err := utils.ExecCommand("go", cmdArgs...)
-
-	if err != nil {
-		err = fmt.Errorf("fetch repo failure, url: %s, error: %s\n%s\n", url, string(result), err)
-		return
-	}
-
-	logrus.WithField("fetcher", "goget").WithField("url", url).WithField("revision", revision).Infoln("fetched")
-
-	if len(revision) == 0 {
-		return
-	}
-
-	gopath := p.conf.GetString("gopath", os.Getenv("GOPATH"))
-
-	checkoutWD := path.Join(gopath, "src", url)
-	checkoutArgs := []string{"-C", checkoutWD, "checkout", revision}
-
-	result, err = utils.ExecCommand("git", checkoutArgs...)
-	if err != nil {
-		err = fmt.Errorf("checkout revision failure, url: %s, error: %s\n%s\n", url, string(result), err)
-		return
-	}
-
-	logrus.WithField("fetcher", "goget").WithField("url", url).WithField("revision", revision).Infoln("checkout")
 
 	return
 }

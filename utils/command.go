@@ -12,6 +12,16 @@ func ExecCommand(name string, args ...string) (result []byte, err error) {
 	return
 }
 
+func ExecCommandWD(name, wkdir string, args ...string) (result []byte, err error) {
+
+	cmd := exec.Command(name, args...)
+	cmd.Dir = wkdir
+
+	result, err = cmd.CombinedOutput()
+
+	return
+}
+
 func ExecCommandSTD(name string, args ...string) (err error) {
 
 	cmd := exec.Command(name, args...)
@@ -33,7 +43,7 @@ func ExecCommandSTD(name string, args ...string) (err error) {
 	return
 }
 
-func ExecCommandWD(name string, dir string, args ...string) (err error) {
+func ExecCommandSTDWD(name string, dir string, args ...string) (err error) {
 
 	cmd := exec.Command(name, args...)
 
