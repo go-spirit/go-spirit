@@ -46,6 +46,8 @@ INFO[0000] building                                      project=todo
 
 `build.conf`
 
+> use goget fetcher
+
 ```hocon
 # project
 todo  {
@@ -79,6 +81,55 @@ todo  {
 			args = ["-v"]
 			url = "github.com/spirit-component/postapi"
 			revision = master
+		}
+	}
+}
+```
+
+
+> use git fetcher
+
+```hocon
+# project
+todo  {
+
+	# import packages
+	packages = ["github.com/spirit-component/examples/todo", "github.com/spirit-component/postapi"]
+
+	build-args = []
+
+	fetchers {
+		git {
+			gopath = ${GOPATH}
+		}
+		goget {
+			gopath = ${GOPATH}
+		}
+	}
+
+
+	# the dependencies
+	repos = {
+		todo {
+			fetcher = git
+			args = {
+				clone = []
+				pull = []
+			}
+			url = "git@github.com:spirit-component/examples.git"
+			revision = master
+			dir = "github.com/spirit-component"
+		}
+
+		postapi {
+			fetcher = git
+			args = {
+				clone = []
+				pull = []
+			}
+			url = "git@github.com:spirit-component/postapi.git"
+			revision = master
+			dir = "github.com/spirit-component"
 		}
 	}
 }

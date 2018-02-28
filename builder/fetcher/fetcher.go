@@ -7,7 +7,7 @@ import (
 )
 
 type Fetcher interface {
-	Fetch(url, revision string, args ...string) (err error)
+	Fetch(url, revision string, update bool, repoConf config.Configuration) (err error)
 }
 
 type NewFetcherFunc func(conf config.Configuration) (Fetcher, error)

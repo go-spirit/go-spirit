@@ -17,9 +17,10 @@ import (
 )
 
 type Project struct {
-	Name     string
-	conf     config.Configuration
-	fetchers map[string]fetcher.Fetcher
+	Name       string
+	conf       config.Configuration
+	fetchers   map[string]fetcher.Fetcher
+	needUpdate bool
 }
 
 type Builder struct {
@@ -32,13 +33,15 @@ type Option func(*Options)
 
 type Options struct {
 	ConfigFile string
+	NeedUpdate bool
 }
 
 type fetchRepo struct {
-	Fetcher  fetcher.Fetcher
-	Args     []string
-	Url      string
-	Revision string
+	repoConf   config.Configuration
+	Fetcher    fetcher.Fetcher
+	Url        string
+	Revision   string
+	NeedUpdate bool
 }
 
 func ConfigFile(file string) Option {
@@ -47,8 +50,14 @@ func ConfigFile(file string) Option {
 	}
 }
 
+func NeedUpdate(needUpdate bool) Option {
+	return func(o *Options) {
+		o.NeedUpdate = needUpdate
+	}
+}
+
 func (p *fetchRepo) Pull() (err error) {
-	err = p.Fetcher.Fetch(p.Url, p.Revision, p.Args...)
+	err = p.Fetcher.Fetch(p.Url, p.Revision, p.NeedUpdate, p.repoConf)
 	return
 }
 
@@ -68,7 +77,7 @@ func NewBuilder(opts ...Option) (builder *Builder, err error) {
 
 	for _, projName := range conf.Keys() {
 		var proj *Project
-		proj, err = NewProject(projName, conf.GetConfig(projName))
+		proj, err = NewProject(projName, builderOpts.NeedUpdate, conf.GetConfig(projName))
 		if err != nil {
 			return
 		}
@@ -93,7 +102,7 @@ func NewBuilder(opts ...Option) (builder *Builder, err error) {
 	return
 }
 
-func NewProject(projName string, conf config.Configuration) (proj *Project, err error) {
+func NewProject(projName string, needUpdate bool, conf config.Configuration) (proj *Project, err error) {
 
 	fetchers := make(map[string]fetcher.Fetcher)
 	fetchersConf := conf.GetConfig("fetchers")
@@ -113,9 +122,10 @@ func NewProject(projName string, conf config.Configuration) (proj *Project, err 
 	}
 
 	proj = &Project{
-		Name:     projName,
-		conf:     conf,
-		fetchers: fetchers,
+		Name:       projName,
+		conf:       conf,
+		fetchers:   fetchers,
+		needUpdate: needUpdate,
 	}
 
 	return
@@ -150,14 +160,14 @@ func (p *Project) getFetchRepos() (repos []*fetchRepo, err error) {
 			return
 		}
 
-		args := repoConf.GetStringList("args")
 		revision := repoConf.GetString("revision", "master")
 
 		r := &fetchRepo{
-			Url:      url,
-			Fetcher:  f,
-			Args:     args,
-			Revision: revision,
+			repoConf:   repoConf,
+			Url:        url,
+			Fetcher:    f,
+			Revision:   revision,
+			NeedUpdate: p.needUpdate,
 		}
 
 		fetchRepos = append(fetchRepos, r)

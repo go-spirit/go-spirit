@@ -35,7 +35,24 @@ func NewGoGetFetcher(conf config.Configuration) (f fetcher.Fetcher, err error) {
 	return
 }
 
-func (p *GoGetFetcher) Fetch(url, revision string, args ...string) (err error) {
+func (p *GoGetFetcher) Fetch(url, revision string, update bool, repoConf config.Configuration) (err error) {
+
+	args := repoConf.GetStringList("args")
+
+	if update {
+		found := false
+		for i := 0; i < len(args); i++ {
+			if args[i] == "-u" {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			args = append(args, "-u")
+		}
+	}
+
 	cmdArgs := []string{"get"}
 
 	cmdArgs = append(cmdArgs, args...)

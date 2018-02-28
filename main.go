@@ -30,6 +30,10 @@ func main() {
 					Name:  "config",
 					Usage: "config file",
 				},
+				cli.BoolFlag{
+					Name:  "update",
+					Usage: "update repo if exist",
+				},
 				cli.StringSliceFlag{
 					Name:  "name",
 					Usage: "project name",
@@ -108,8 +112,11 @@ func pull(ctx *cli.Context) (err error) {
 		return
 	}
 
+	update := ctx.Bool("update")
+
 	builder, err := builder.NewBuilder(
 		builder.ConfigFile(configfile),
+		builder.NeedUpdate(update),
 	)
 
 	if err != nil {
