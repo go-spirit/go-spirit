@@ -30,10 +30,10 @@ go get -u github.com/go-spirit/spirit-builder
 
 ```bash
 > spirit-builder pull --config build.conf
-INFO[0000] fetched                                       fetcher=goget revision=master url=github.com/spirit-component/examples/todo
-INFO[0000] checkout                                      fetcher=goget revision=master url=github.com/spirit-component/examples/todo
-INFO[0000] fetched                                       fetcher=goget revision=master url=github.com/spirit-component/postapi
-INFO[0000] checkout                                      fetcher=goget revision=master url=github.com/spirit-component/postapi
+INFO[0000] fetched    fetcher=goget revision=master url=github.com/spirit-component/examples/todo
+INFO[0000] checkout   fetcher=goget revision=master url=github.com/spirit-component/examples/todo
+INFO[0000] fetched    fetcher=goget revision=master url=github.com/spirit-component/postapi
+INFO[0000] checkout   fetcher=goget revision=master url=github.com/spirit-component/postapi
 ```
 
 #### build project
