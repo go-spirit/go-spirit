@@ -235,7 +235,7 @@ func (p *Project) Build() (err error) {
 
 	appendArgs := p.conf.GetStringList("build-args")
 
-	args := []string{"build", "-o", "-v", filepath.Join(cwd, p.Name), mainPath}
+	args := []string{"build", "-v", "-o", filepath.Join(cwd, p.Name), mainPath}
 
 	args = append(args, appendArgs...)
 
