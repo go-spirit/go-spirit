@@ -231,11 +231,11 @@ func (p *Project) Build() (err error) {
 
 	defer os.Remove(mainPath)
 
-	utils.ExecCommandSTDWD("go", workdir, "get", "-d")
+	utils.ExecCommandSTDWD("go", workdir, "get", "-d", "-v")
 
 	appendArgs := p.conf.GetStringList("build-args")
 
-	args := []string{"build", "-o", filepath.Join(cwd, p.Name), mainPath}
+	args := []string{"build", "-o", "-v", filepath.Join(cwd, p.Name), mainPath}
 
 	args = append(args, appendArgs...)
 
