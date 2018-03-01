@@ -231,15 +231,20 @@ func (p *Project) Build() (err error) {
 
 	defer os.Remove(mainPath)
 
-	utils.ExecCommandSTDWD("go", workdir, "get", "-d", "-v")
+	// go get before build
+	appendGetArgs := p.conf.GetStringList("build-args.go-get")
+	gogetArgs := []string{"get", "-d"}
+	gogetArgs = append(gogetArgs, appendGetArgs...)
 
-	appendArgs := p.conf.GetStringList("build-args")
+	utils.ExecCommandSTDWD("go", workdir, gogetArgs...)
 
-	args := []string{"build", "-v", "-o", filepath.Join(cwd, p.Name), mainPath}
+	// go build
+	appendBuildArgs := p.conf.GetStringList("build-args.go-build")
+	buildArgs := []string{"build"}
+	buildArgs = append(buildArgs, appendBuildArgs...)
+	buildArgs = append(buildArgs, "-o", filepath.Join(cwd, p.Name), mainPath)
 
-	args = append(args, appendArgs...)
-
-	err = utils.ExecCommandSTD("go", args...)
+	err = utils.ExecCommandSTD("go", buildArgs...)
 	if err != nil {
 		return
 	}
