@@ -104,8 +104,18 @@ func NewBuilder(opts ...Option) (builder *Builder, err error) {
 
 func NewProject(projName string, needUpdate bool, conf config.Configuration) (proj *Project, err error) {
 
+	if conf == nil {
+		err = fmt.Errorf("could not inital project of %s config because of config is nil", projName)
+		return
+	}
+
 	fetchers := make(map[string]fetcher.Fetcher)
 	fetchersConf := conf.GetConfig("fetchers")
+
+	if fetchersConf == nil {
+		err = fmt.Errorf("could not inital project of %s config because of fetchers config is not set", projName)
+		return
+	}
 
 	for _, fetcherName := range fetchersConf.Keys() {
 		var f fetcher.Fetcher
