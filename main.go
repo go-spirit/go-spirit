@@ -6,14 +6,14 @@ import (
 	"os"
 	"time"
 
-	"github.com/go-spirit/spirit-builder/builder"
+	"github.com/go-spirit/go-spirit/builder"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
 import (
-	_ "github.com/go-spirit/spirit-builder/builder/fetcher/git"
-	_ "github.com/go-spirit/spirit-builder/builder/fetcher/goget"
+	_ "github.com/go-spirit/go-spirit/builder/fetcher/git"
+	_ "github.com/go-spirit/go-spirit/builder/fetcher/goget"
 )
 
 func main() {

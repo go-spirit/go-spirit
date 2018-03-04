@@ -6,8 +6,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/go-spirit/spirit-builder/builder/fetcher"
-	"github.com/go-spirit/spirit-builder/utils"
+	"github.com/go-spirit/go-spirit/builder/fetcher"
+	"github.com/go-spirit/go-spirit/utils"
 	"github.com/gogap/config"
 )
 

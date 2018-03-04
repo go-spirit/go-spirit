@@ -83,3 +83,22 @@ func GitClone(wkdir, url string, args ...string) error {
 
 	return nil
 }
+
+func GetCommitSHA(wkdir string) (string, error) {
+	hash, err := ExecCommand("git", "-C", wkdir, "rev-parse", "HEAD")
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSuffix(string(hash), "\n"), nil
+}
+
+func GetBranchOrTagName(wkdir string) (string, error) {
+	name, err := ExecCommand("git", "-C", wkdir, "symbolic-ref", "-q", "--short", "HEAD")
+	if err != nil {
+		name, err = ExecCommand("git", "-C", wkdir, "describe", "--tags", "--exact-match")
+		if err != nil {
+			return "", fmt.Errorf("get branch name or tag name failure")
+		}
+	}
+	return strings.TrimSuffix(string(name), "\n"), nil
+}

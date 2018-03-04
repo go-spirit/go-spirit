@@ -5,14 +5,41 @@ const mainTmpl = `package main
 ##imports##
 
 import (
+	"fmt"
 	"github.com/sirupsen/logrus"
+	"github.com/urfave/cli"
 
 	"github.com/go-spirit/spirit/cmd"
 )
 
+var (
+	config = ##config##
+	revision = "##revision##"
+)
+
 func main() {
 
-	cmd.App()
+	app := cmd.App()
+
+	app.Commands = append(
+		app.Commands,
+		cli.Command{
+			Name: "metadata",
+			Usage: "the metadata of when build this app",
+			Subcommands: cli.Commands{
+				cli.Command{
+					Name:   "revision",
+					Usage:  "show the packages revison",
+					Action: showRevision,
+				},
+				cli.Command{
+					Name:   "config",
+					Usage:  "show the configuration while build this app",
+					Action: showConfig,
+				},
+			},
+		},
+	)
 
 	err := cmd.Init()
 
@@ -21,4 +48,15 @@ func main() {
 		return
 	}
 }
+
+func showConfig(ctx *cli.Context) (err error) {
+	fmt.Println(config)
+	return
+}
+
+func showRevision(ctx *cli.Context) (err error) {
+	fmt.Println(revision)
+	return
+}
+
 `

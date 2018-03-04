@@ -1,25 +1,25 @@
-# spirit-builder
-spirit build is a tools for build spirit component
+# go-spirit
+go-spirit is a tools for build spirit component
 
-## Install spirit-builder
+## Install go-spirit
 
 #### install
 
 ```bash
-go get github.com/go-spirit/spirit-builder
+go get github.com/go-spirit/go-spirit
 ```
 
 > if do not install, please run 
 
 ```bash
-go install github.com/go-spirit/spirit-builder
+go install github.com/go-spirit/go-spirit
 ```
 
 
 #### update
 
 ```bash
-go get -u github.com/go-spirit/spirit-builder
+go get -u github.com/go-spirit/go-spirit
 ```
 
 
@@ -29,7 +29,7 @@ go get -u github.com/go-spirit/spirit-builder
 #### pull project source
 
 ```bash
-> spirit-builder pull --config build.conf
+> go-spirit pull --config build.conf
 INFO[0000] fetched    fetcher=goget revision=master url=github.com/spirit-component/examples/todo
 INFO[0000] checkout   fetcher=goget revision=master url=github.com/spirit-component/examples/todo
 INFO[0000] fetched    fetcher=goget revision=master url=github.com/spirit-component/postapi
@@ -39,7 +39,7 @@ INFO[0000] checkout   fetcher=goget revision=master url=github.com/spirit-compon
 #### build project
 
 ```bash
-spirit-builder build --config build.conf
+go-spirit build --config build.conf
 INFO[0000] building                                      project=todo
 ```
 

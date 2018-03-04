@@ -2,6 +2,7 @@ package builder
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -11,8 +12,8 @@ import (
 	"github.com/pborman/uuid"
 	"github.com/sirupsen/logrus"
 
-	"github.com/go-spirit/spirit-builder/builder/fetcher"
-	"github.com/go-spirit/spirit-builder/utils"
+	"github.com/go-spirit/go-spirit/builder/fetcher"
+	"github.com/go-spirit/go-spirit/utils"
 	"github.com/gogap/config"
 )
 
@@ -222,7 +223,7 @@ func (p *Project) Build() (err error) {
 	}
 
 	mainName := fmt.Sprintf("main_spirit_%s.go", p.Name)
-	workdir := fmt.Sprintf(os.TempDir(), uuid.New())
+	workdir := fmt.Sprintf("%s/%s", os.TempDir(), uuid.New())
 
 	err = os.MkdirAll(workdir, 0755)
 	if err != nil {
@@ -232,7 +233,15 @@ func (p *Project) Build() (err error) {
 	mainPath := filepath.Join(workdir, mainName)
 
 	mainSrc := strings.Replace(mainTmpl, "##imports##", buf.String(), 1)
+	mainSrc = strings.Replace(mainSrc, "##config##", "`"+p.conf.String()+"`", 1)
 
+	err = ioutil.WriteFile(mainPath, []byte(mainSrc), 0644)
+	if err != nil {
+		err = fmt.Errorf("write %s failure to temp dir: %s", mainName, err)
+		return
+	}
+
+	mainSrc = strings.Replace(mainSrc, "\"##revision##\"", "`"+p.revisions(workdir)+"`", 1)
 	err = ioutil.WriteFile(mainPath, []byte(mainSrc), 0644)
 	if err != nil {
 		err = fmt.Errorf("write %s failure to temp dir: %s", mainName, err)
@@ -260,6 +269,43 @@ func (p *Project) Build() (err error) {
 	}
 
 	return
+}
+
+type packageRevision struct {
+	Package  string `json:"package"`
+	Branch   string `json:"branch"`
+	Revision string `json:"revision"`
+}
+
+func (p *Project) revisions(wkdir string) string {
+
+	pkgs, _ := utils.GoDeps(wkdir)
+
+	if len(pkgs) == 0 {
+		return ""
+	}
+
+	var pkgsRevision []packageRevision
+
+	gopath := os.Getenv("GOPATH")
+
+	for _, pkg := range pkgs {
+		pkgPath := filepath.Join(gopath, "src", pkg)
+		pkgHash, err := utils.GetCommitSHA(pkgPath)
+		if err != nil {
+			continue
+		}
+		branchName, err := utils.GetBranchOrTagName(pkgPath)
+		if err != nil {
+			continue
+		}
+
+		pkgsRevision = append(pkgsRevision, packageRevision{Package: pkg, Revision: pkgHash, Branch: branchName})
+	}
+
+	data, _ := json.MarshalIndent(pkgsRevision, "", "    ")
+
+	return string(data)
 }
 
 func (p *Builder) ListProject() []string {
