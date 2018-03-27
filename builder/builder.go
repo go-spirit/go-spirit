@@ -248,6 +248,8 @@ func (p *Project) Build() (err error) {
 		return
 	}
 
+	logrus.WithField("PROJECT", p.Name).Debugln(mainSrc)
+
 	defer os.Remove(mainPath)
 
 	// go get before build
@@ -312,17 +314,21 @@ func (p *Project) revisions(wkdir string) string {
 
 			if gopath != goroot {
 				foundPath = pkgPath
+				logrus.WithField("GOPATH", gopath).WithField("PACKAGE", pkg).WithField("PROJECT", p.Name).WithField("PKG_PATH", pkgPath).Debugln("Found package path")
+				break
 			}
 		}
 
 		if len(foundPath) > 0 {
 			pkgHash, err := utils.GetCommitSHA(foundPath)
 			if err != nil {
+				logrus.WithField("PACKAGE", pkg).WithField("PROJECT", p.Name).WithError(err).WithField("PKG_PATH", foundPath).Debugln("Get commit sha failure")
 				continue
 			}
 
 			branchName, err := utils.GetBranchOrTagName(foundPath)
 			if err != nil {
+				logrus.WithField("PACKAGE", pkg).WithField("PROJECT", p.Name).WithError(err).WithField("PKG_PATH", foundPath).Debugln("Get branch or tag name failure")
 				continue
 			}
 

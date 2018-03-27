@@ -60,6 +60,7 @@ func main() {
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:  "log-level",
+			Value: "info",
 			Usage: "debug, info, warn, error, fatal, panic",
 		},
 	}
@@ -78,10 +79,6 @@ func main() {
 
 func initLogLevel(ctx *cli.Context) (err error) {
 	strlvl := ctx.Parent().String("log-level")
-
-	if len(strlvl) == 0 {
-		return
-	}
 
 	lvl, err := logrus.ParseLevel(strlvl)
 	if err != nil {
