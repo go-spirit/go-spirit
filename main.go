@@ -71,6 +71,7 @@ func main() {
 
 	if err != nil {
 		logrus.Errorln(err)
+		os.Exit(1)
 		return
 	}
 
