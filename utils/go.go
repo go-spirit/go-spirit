@@ -33,8 +33,9 @@ func GoDeps(wkdir string) ([]string, error) {
 	}
 
 	goList := struct {
-		Imports []string
-		Deps    []string
+		ImportPath string
+		Imports    []string
+		Deps       []string
 	}{}
 
 	err = json.Unmarshal(result, &goList)
@@ -42,5 +43,8 @@ func GoDeps(wkdir string) ([]string, error) {
 		return nil, err
 	}
 
-	return append(goList.Imports, goList.Deps...), nil
+	ret := append(goList.Imports, goList.Deps...)
+	ret = append(ret, goList.ImportPath)
+
+	return ret, nil
 }
