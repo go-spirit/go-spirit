@@ -287,20 +287,24 @@ func (p *Project) revisions(wkdir string) string {
 
 	var pkgsRevision []packageRevision
 
-	gopath := os.Getenv("GOPATH")
+	envGOPATH := os.Getenv("GOPATH")
 
-	for _, pkg := range pkgs {
-		pkgPath := filepath.Join(gopath, "src", pkg)
-		pkgHash, err := utils.GetCommitSHA(pkgPath)
-		if err != nil {
-			continue
-		}
-		branchName, err := utils.GetBranchOrTagName(pkgPath)
-		if err != nil {
-			continue
-		}
+	gopaths := strings.Split(envGOPATH, ":")
 
-		pkgsRevision = append(pkgsRevision, packageRevision{Package: pkg, Revision: pkgHash, Branch: branchName})
+	for _, gopath := range gopaths {
+		for _, pkg := range pkgs {
+			pkgPath := filepath.Join(gopath, "src", pkg)
+			pkgHash, err := utils.GetCommitSHA(pkgPath)
+			if err != nil {
+				continue
+			}
+			branchName, err := utils.GetBranchOrTagName(pkgPath)
+			if err != nil {
+				continue
+			}
+
+			pkgsRevision = append(pkgsRevision, packageRevision{Package: pkg, Revision: pkgHash, Branch: branchName})
+		}
 	}
 
 	data, _ := json.MarshalIndent(pkgsRevision, "", "    ")
