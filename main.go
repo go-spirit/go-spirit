@@ -79,6 +79,10 @@ func main() {
 func initLogLevel(ctx *cli.Context) (err error) {
 	strlvl := ctx.Parent().String("log-level")
 
+	if len(strlvl) == 0 {
+		return
+	}
+
 	lvl, err := logrus.ParseLevel(strlvl)
 	if err != nil {
 		return
