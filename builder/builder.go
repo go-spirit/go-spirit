@@ -299,6 +299,8 @@ func (p *Project) revisions(wkdir string) string {
 		gopaths = append(gopaths, goroot)
 	}
 
+	revExists := map[string]bool{}
+
 	for _, pkg := range pkgs {
 
 		foundPath := ""
@@ -331,7 +333,9 @@ func (p *Project) revisions(wkdir string) string {
 				logrus.WithField("PACKAGE", pkg).WithField("PROJECT", p.Name).WithError(err).WithField("PKG_PATH", foundPath).Debugln("Get branch or tag name failure")
 			}
 
-			pkgsRevision = append(pkgsRevision, packageRevision{Package: pkg, Revision: pkgHash, Branch: branchName})
+			if !revExists[pkg] {
+				pkgsRevision = append(pkgsRevision, packageRevision{Package: pkg, Revision: pkgHash, Branch: branchName})
+			}
 		}
 	}
 
