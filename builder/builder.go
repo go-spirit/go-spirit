@@ -329,7 +329,6 @@ func (p *Project) revisions(wkdir string) string {
 			branchName, err := utils.GetBranchOrTagName(foundPath)
 			if err != nil {
 				logrus.WithField("PACKAGE", pkg).WithField("PROJECT", p.Name).WithError(err).WithField("PKG_PATH", foundPath).Debugln("Get branch or tag name failure")
-				continue
 			}
 
 			pkgsRevision = append(pkgsRevision, packageRevision{Package: pkg, Revision: pkgHash, Branch: branchName})
