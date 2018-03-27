@@ -334,6 +334,7 @@ func (p *Project) revisions(wkdir string) string {
 			}
 
 			if !revExists[pkg] {
+				revExists[pkg] = true
 				pkgsRevision = append(pkgsRevision, packageRevision{Package: pkg, Revision: pkgHash, Branch: branchName})
 			}
 		}
