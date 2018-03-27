@@ -291,14 +291,37 @@ func (p *Project) revisions(wkdir string) string {
 
 	gopaths := strings.Split(envGOPATH, ":")
 
-	for _, gopath := range gopaths {
-		for _, pkg := range pkgs {
+	goroot := utils.GoRoot()
+
+	if len(goroot) > 0 {
+		gopaths = append(gopaths, goroot)
+	}
+
+	for _, pkg := range pkgs {
+
+		foundPath := ""
+
+		for _, gopath := range gopaths {
+
 			pkgPath := filepath.Join(gopath, "src", pkg)
-			pkgHash, err := utils.GetCommitSHA(pkgPath)
+
+			_, err := os.Stat(pkgPath)
 			if err != nil {
 				continue
 			}
-			branchName, err := utils.GetBranchOrTagName(pkgPath)
+
+			if gopath != goroot {
+				foundPath = pkgPath
+			}
+		}
+
+		if len(foundPath) > 0 {
+			pkgHash, err := utils.GetCommitSHA(foundPath)
+			if err != nil {
+				continue
+			}
+
+			branchName, err := utils.GetBranchOrTagName(foundPath)
 			if err != nil {
 				continue
 			}

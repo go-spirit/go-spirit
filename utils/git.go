@@ -85,11 +85,11 @@ func GitClone(wkdir, url string, args ...string) error {
 }
 
 func GetCommitSHA(wkdir string) (string, error) {
-	hash, err := ExecCommand("git", "-C", wkdir, "rev-parse", "HEAD")
+	buf, err := ExecCommand("git", "-C", wkdir, "rev-parse", "HEAD")
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("%s%s", string(buf), err)
 	}
-	return strings.TrimSuffix(string(hash), "\n"), nil
+	return strings.TrimSuffix(string(buf), "\n"), nil
 }
 
 func GetBranchOrTagName(wkdir string) (string, error) {

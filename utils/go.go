@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 func GoGet(url string, args ...string) error {
@@ -33,9 +34,8 @@ func GoDeps(wkdir string) ([]string, error) {
 	}
 
 	goList := struct {
-		ImportPath string
-		Imports    []string
-		Deps       []string
+		Imports []string
+		Deps    []string
 	}{}
 
 	err = json.Unmarshal(result, &goList)
@@ -43,8 +43,15 @@ func GoDeps(wkdir string) ([]string, error) {
 		return nil, err
 	}
 
-	ret := append(goList.Imports, goList.Deps...)
-	ret = append(ret, goList.ImportPath)
+	return append(goList.Imports, goList.Deps...), nil
+}
 
-	return ret, nil
+func GoRoot() string {
+
+	result, err := ExecCommand("go", "env", "GOROOT")
+	if err != nil {
+		return ""
+	}
+
+	return strings.TrimSuffix(string(result), "\n")
 }

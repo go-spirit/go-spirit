@@ -57,6 +57,13 @@ func main() {
 		},
 	}
 
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:  "log-level",
+			Usage: "debug, info, warn, error, fatal, panic",
+		},
+	}
+
 	rand.Seed(time.Now().UnixNano())
 
 	err := app.Run(os.Args)
@@ -69,7 +76,25 @@ func main() {
 	return
 }
 
+func initLogLevel(ctx *cli.Context) (err error) {
+	strlvl := ctx.Parent().String("log-level")
+
+	lvl, err := logrus.ParseLevel(strlvl)
+	if err != nil {
+		return
+	}
+
+	logrus.SetLevel(lvl)
+
+	return
+}
+
 func build(ctx *cli.Context) (err error) {
+
+	err = initLogLevel(ctx)
+	if err != nil {
+		return
+	}
 
 	configfile := ctx.String("config")
 	if len(configfile) == 0 {
@@ -105,6 +130,11 @@ func build(ctx *cli.Context) (err error) {
 }
 
 func pull(ctx *cli.Context) (err error) {
+
+	err = initLogLevel(ctx)
+	if err != nil {
+		return
+	}
 
 	configfile := ctx.String("config")
 	if len(configfile) == 0 {
