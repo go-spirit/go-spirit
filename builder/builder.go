@@ -289,9 +289,9 @@ func (p *Project) revisions(wkdir string) string {
 
 	var pkgsRevision []packageRevision
 
-	envGOPATH := os.Getenv("GOPATH")
+	strGOPATH := utils.GoPath()
 
-	gopaths := strings.Split(envGOPATH, ":")
+	gopaths := strings.Split(strGOPATH, ":")
 
 	goroot := utils.GoRoot()
 
@@ -303,7 +303,7 @@ func (p *Project) revisions(wkdir string) string {
 
 	for _, pkg := range pkgs {
 
-		pkgPath, exist := utils.FindPkgPathByGOPATH(envGOPATH, pkg)
+		pkgPath, exist := utils.FindPkgPathByGOPATH(strGOPATH, pkg)
 
 		if !exist {
 			logrus.WithField("PACKAGE", pkg).WithField("PROJECT", p.Name).WithField("PKG_PATH", pkgPath).Debugln("Package not found")

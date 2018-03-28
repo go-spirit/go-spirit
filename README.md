@@ -59,10 +59,8 @@ todo  {
 
 	fetchers {
 		git {
-			gopath = ${GOPATH}
 		}
 		goget {
-			gopath = ${GOPATH}
 		}
 	}
 
@@ -100,10 +98,8 @@ todo  {
 
 	fetchers {
 		git {
-			gopath = ${GOPATH}
 		}
 		goget {
-			gopath = ${GOPATH}
 		}
 	}
 

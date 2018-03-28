@@ -1,8 +1,7 @@
 package goget
 
 import (
-	"os"
-
+	"fmt"
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-spirit/go-spirit/builder/fetcher"
@@ -36,7 +35,12 @@ func NewGoGetFetcher(conf config.Configuration) (f fetcher.Fetcher, err error) {
 func (p *GoGetFetcher) Fetch(url, revision string, update bool, repoConf config.Configuration) (err error) {
 
 	args := repoConf.GetStringList("args")
-	strGOPATH := p.conf.GetString("gopath", os.Getenv("GOPATH"))
+	strGOPATH := utils.GoPath()
+
+	if len(strGOPATH) == 0 {
+		err = fmt.Errorf("GOPATH is empty")
+		return
+	}
 
 	repoDir, exist := utils.FindPkgPathByGOPATH(strGOPATH, url)
 

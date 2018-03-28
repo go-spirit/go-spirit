@@ -58,6 +58,16 @@ func GoRoot() string {
 	return strings.TrimSuffix(string(result), "\n")
 }
 
+func GoPath() string {
+
+	result, err := ExecCommand("go", "env", "GOPATH")
+	if err != nil {
+		return ""
+	}
+
+	return strings.TrimSuffix(string(result), "\n")
+}
+
 func FindPkgPathByGOPATH(strGOPATH string, pkg string) (string, bool) {
 	gopaths := strings.Split(strGOPATH, ":")
 

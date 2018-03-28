@@ -2,8 +2,10 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/go-spirit/go-spirit/builder"
@@ -64,6 +66,10 @@ func main() {
 			Value: "info",
 			Usage: "debug, info, warn, error, fatal, panic",
 		},
+		cli.StringSliceFlag{
+			Name:  "env",
+			Usage: "set process env, e.g.: --env GOPATH=/gopath --env X=Y",
+		},
 	}
 
 	rand.Seed(time.Now().UnixNano())
@@ -79,7 +85,7 @@ func main() {
 	return
 }
 
-func initLogLevel(ctx *cli.Context) (err error) {
+func initCommonFlags(ctx *cli.Context) (err error) {
 	strlvl := ctx.Parent().String("log-level")
 
 	lvl, err := logrus.ParseLevel(strlvl)
@@ -89,12 +95,29 @@ func initLogLevel(ctx *cli.Context) (err error) {
 
 	logrus.SetLevel(lvl)
 
+	logrus.WithField("LEVEL", strlvl).Debugln("Loglevel changed")
+
+	envs := ctx.Parent().StringSlice("env")
+
+	for _, env := range envs {
+		kv := strings.SplitN(env, "=", 2)
+
+		if len(kv) != 2 {
+			err = fmt.Errorf("env format error: %s", env)
+			return
+		}
+
+		os.Setenv(kv[0], kv[1])
+
+		logrus.WithField("ENV", env).Debugln("Set env")
+	}
+
 	return
 }
 
 func build(ctx *cli.Context) (err error) {
 
-	err = initLogLevel(ctx)
+	err = initCommonFlags(ctx)
 	if err != nil {
 		return
 	}
@@ -134,7 +157,7 @@ func build(ctx *cli.Context) (err error) {
 
 func pull(ctx *cli.Context) (err error) {
 
-	err = initLogLevel(ctx)
+	err = initCommonFlags(ctx)
 	if err != nil {
 		return
 	}

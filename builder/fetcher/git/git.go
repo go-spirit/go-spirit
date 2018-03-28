@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 
@@ -47,9 +48,18 @@ func (p *GitFetcher) Fetch(url, revision string, update bool, repoConf config.Co
 		return
 	}
 
-	gopath := p.conf.GetString("gopath", os.Getenv("GOPATH"))
+	strGOPATH := utils.GoPath()
+	if len(strGOPATH) == 0 {
+		err = fmt.Errorf("GOPATH is empty")
+		return
+	}
 
-	absWorkDir := filepath.Join(gopath, "src", dir)
+	absWorkDir, existDir := utils.FindPkgPathByGOPATH(strGOPATH, dir)
+	if !existDir {
+		gopaths := strings.Split(absWorkDir, ":")
+		absWorkDir = filepath.Join(gopaths[0], "src", dir)
+	}
+
 	absRepoDir := filepath.Join(absWorkDir, repoName)
 
 	err = os.MkdirAll(absWorkDir, 0755)
