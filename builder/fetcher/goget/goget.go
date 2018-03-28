@@ -1,10 +1,7 @@
 package goget
 
 import (
-	"errors"
 	"os"
-	"path"
-	"strings"
 
 	"github.com/sirupsen/logrus"
 
@@ -41,26 +38,7 @@ func (p *GoGetFetcher) Fetch(url, revision string, update bool, repoConf config.
 	args := repoConf.GetStringList("args")
 	strGOPATH := p.conf.GetString("gopath", os.Getenv("GOPATH"))
 
-	gopaths := strings.Split(strGOPATH, ":")
-
-	if len(gopaths) == 0 {
-		err = errors.New("could not find available GOPATH")
-		return
-	}
-
-	gopath := gopaths[0]
-
-	if len(gopath) == 0 {
-		err = errors.New("could not find available GOPATH")
-		return
-	}
-
-	repoDir := path.Join(gopath, "src", url)
-
-	exist, err := utils.DirExist(repoDir)
-	if err != nil {
-		return
-	}
+	repoDir, exist := utils.FindPkgPathByGOPATH(strGOPATH, url)
 
 	if !exist {
 

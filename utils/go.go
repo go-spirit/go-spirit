@@ -3,6 +3,8 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"path"
 	"strings"
 )
 
@@ -54,4 +56,19 @@ func GoRoot() string {
 	}
 
 	return strings.TrimSuffix(string(result), "\n")
+}
+
+func FindPkgPathByGOPATH(strGOPATH string, pkg string) (string, bool) {
+	gopaths := strings.Split(strGOPATH, ":")
+
+	for _, gopath := range gopaths {
+		absPath := path.Join(gopath, "src", pkg)
+		fi, err := os.Stat(absPath)
+
+		if err == nil && fi.IsDir() {
+			return absPath, true
+		}
+	}
+
+	return "", false
 }

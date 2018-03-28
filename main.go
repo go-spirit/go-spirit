@@ -19,6 +19,7 @@ import (
 func main() {
 	app := cli.NewApp()
 	app.Usage = "spirit project builder"
+	app.Version = "0.0.1"
 
 	app.Commands = cli.Commands{
 		cli.Command{

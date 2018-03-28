@@ -303,40 +303,27 @@ func (p *Project) revisions(wkdir string) string {
 
 	for _, pkg := range pkgs {
 
-		foundPath := ""
+		pkgPath, exist := utils.FindPkgPathByGOPATH(envGOPATH, pkg)
 
-		for _, gopath := range gopaths {
-
-			pkgPath := filepath.Join(gopath, "src", pkg)
-
-			_, err := os.Stat(pkgPath)
-			if err != nil {
-				continue
-			}
-
-			if gopath != goroot {
-				foundPath = pkgPath
-				logrus.WithField("GOPATH", gopath).WithField("PACKAGE", pkg).WithField("PROJECT", p.Name).WithField("PKG_PATH", pkgPath).Debugln("Found package path")
-				break
-			}
+		if !exist {
+			logrus.WithField("PACKAGE", pkg).WithField("PROJECT", p.Name).WithField("PKG_PATH", pkgPath).Debugln("Package not found")
+			continue
 		}
 
-		if len(foundPath) > 0 {
-			pkgHash, err := utils.GetCommitSHA(foundPath)
-			if err != nil {
-				logrus.WithField("PACKAGE", pkg).WithField("PROJECT", p.Name).WithError(err).WithField("PKG_PATH", foundPath).Debugln("Get commit sha failure")
-				continue
-			}
+		pkgHash, err := utils.GetCommitSHA(pkgPath)
+		if err != nil {
+			logrus.WithField("PACKAGE", pkg).WithField("PROJECT", p.Name).WithError(err).WithField("PKG_PATH", pkgPath).Debugln("Get commit sha failure")
+			continue
+		}
 
-			branchName, err := utils.GetBranchOrTagName(foundPath)
-			if err != nil {
-				logrus.WithField("PACKAGE", pkg).WithField("PROJECT", p.Name).WithError(err).WithField("PKG_PATH", foundPath).Debugln("Get branch or tag name failure")
-			}
+		branchName, err := utils.GetBranchOrTagName(pkgPath)
+		if err != nil {
+			logrus.WithField("PACKAGE", pkg).WithField("PROJECT", p.Name).WithError(err).WithField("PKG_PATH", pkgPath).Debugln("Get branch or tag name failure")
+		}
 
-			if !revExists[pkg] {
-				revExists[pkg] = true
-				pkgsRevision = append(pkgsRevision, packageRevision{Package: pkg, Revision: pkgHash, Branch: branchName})
-			}
+		if !revExists[pkg] {
+			revExists[pkg] = true
+			pkgsRevision = append(pkgsRevision, packageRevision{Package: pkg, Revision: pkgHash, Branch: branchName})
 		}
 	}
 
