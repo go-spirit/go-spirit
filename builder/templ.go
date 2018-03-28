@@ -20,6 +20,7 @@ var (
 func main() {
 
 	app := cmd.App()
+	app.Name = ##Name##
 
 	app.Commands = append(
 		app.Commands,

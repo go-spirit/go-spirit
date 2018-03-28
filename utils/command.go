@@ -22,13 +22,14 @@ func ExecCommandWD(name, wkdir string, args ...string) (result []byte, err error
 	return
 }
 
-func ExecCommandSTD(name string, args ...string) (err error) {
+func ExecCommandSTD(name string, extraEnvs []string, args ...string) (err error) {
 
 	cmd := exec.Command(name, args...)
 
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
+	cmd.Env = append(os.Environ(), extraEnvs...)
 
 	err = cmd.Start()
 	if err != nil {

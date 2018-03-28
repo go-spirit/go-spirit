@@ -94,7 +94,17 @@ todo  {
 	# import packages
 	packages = ["github.com/spirit-component/examples/todo", "github.com/spirit-component/postapi"]
 
-	build-args = []
+	build {
+		args = {
+			go-get = ["-v"]
+			go-build = ["-v"]
+		}
+
+		target {
+			linux = ["amd64"]
+			darwin = ["amd64"]
+		}
+	}
 
 	fetchers {
 		git {

@@ -118,7 +118,7 @@ func NewProject(projName string, needUpdate bool, conf config.Configuration) (pr
 		return
 	}
 
-	for _, fetcherName := range fetchersConf.Keys() {
+	for _, fetcherName := range []string{"git", "goget"} {
 		var f fetcher.Fetcher
 		f, err = fetcher.NewFetcher(
 			fetcherName,
@@ -234,6 +234,7 @@ func (p *Project) Build() (err error) {
 
 	mainSrc := strings.Replace(mainTmpl, "##imports##", buf.String(), 1)
 	mainSrc = strings.Replace(mainSrc, "##config##", "`"+p.conf.String()+"`", 1)
+	mainSrc = strings.Replace(mainSrc, "##Name##", "\""+p.Name+"\"", 1)
 
 	err = ioutil.WriteFile(mainPath, []byte(mainSrc), 0644)
 	if err != nil {
@@ -253,21 +254,39 @@ func (p *Project) Build() (err error) {
 	defer os.Remove(mainPath)
 
 	// go get before build
-	appendGetArgs := p.conf.GetStringList("build-args.go-get")
+	appendGetArgs := p.conf.GetStringList("build.args.go-get")
 	gogetArgs := []string{"get", "-d"}
 	gogetArgs = append(gogetArgs, appendGetArgs...)
 
 	utils.ExecCommandSTDWD("go", workdir, gogetArgs...)
 
 	// go build
-	appendBuildArgs := p.conf.GetStringList("build-args.go-build")
+	appendBuildArgs := p.conf.GetStringList("build.args.go-build")
 	buildArgs := []string{"build"}
 	buildArgs = append(buildArgs, appendBuildArgs...)
-	buildArgs = append(buildArgs, "-o", filepath.Join(cwd, p.Name), mainPath)
 
-	err = utils.ExecCommandSTD("go", buildArgs...)
-	if err != nil {
-		return
+	targetConf := p.conf.GetConfig("build.target")
+
+	if targetConf.IsEmpty() {
+		buildArgs = append(buildArgs, "-o", filepath.Join(cwd, p.Name), mainPath)
+		err = utils.ExecCommandSTD("go", nil, buildArgs...)
+		if err != nil {
+			return
+		}
+	} else {
+		for _, targetOS := range targetConf.Keys() {
+			targetArchs := targetConf.GetStringList(targetOS)
+			for _, targetArch := range targetArchs {
+
+				envs := []string{"GOOS=" + targetOS, "GOARCH=" + targetArch}
+				targetBuildArgs := append(buildArgs, "-o", filepath.Join(cwd, fmt.Sprintf("%s-%s-%s", p.Name, targetOS, targetArch)), mainPath)
+
+				err = utils.ExecCommandSTD("go", envs, targetBuildArgs...)
+				if err != nil {
+					return
+				}
+			}
+		}
 	}
 
 	return
