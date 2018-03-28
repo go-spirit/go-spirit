@@ -42,7 +42,7 @@ func (p *GoGetFetcher) Fetch(url, revision string, update bool, repoConf config.
 		return
 	}
 
-	repoDir, exist := utils.FindPkgPathByGOPATH(strGOPATH, url)
+	_, repoDir, exist := utils.FindPkgPathByGOPATH(strGOPATH, url)
 
 	if !exist {
 
@@ -53,7 +53,7 @@ func (p *GoGetFetcher) Fetch(url, revision string, update bool, repoConf config.
 
 		update = false
 
-		logrus.WithField("fetcher", "goget").WithField("url", url).WithField("revision", revision).Infoln("fetched")
+		logrus.WithField("FETCHER", "goget").WithField("URL", url).WithField("REVISION", revision).Infoln("Fetched")
 	}
 
 	err = utils.GitCheckout(repoDir, revision)
@@ -61,7 +61,7 @@ func (p *GoGetFetcher) Fetch(url, revision string, update bool, repoConf config.
 		return
 	}
 
-	logrus.WithField("fetcher", "goget").WithField("url", url).WithField("revision", revision).Infoln("checked out")
+	logrus.WithField("FETCHER", "goget").WithField("URL", url).WithField("REVISION", revision).Infoln("Checked out")
 
 	if update {
 
@@ -76,9 +76,9 @@ func (p *GoGetFetcher) Fetch(url, revision string, update bool, repoConf config.
 			if err != nil {
 				return
 			}
-			logrus.WithField("fetcher", "goget").WithField("url", url).WithField("revision", revision).Infoln("updated")
+			logrus.WithField("FETCHER", "goget").WithField("URL", url).WithField("REVISION", revision).Infoln("Updated")
 		} else {
-			logrus.WithField("fetcher", "goget").WithField("url", url).WithField("revision", revision).Warnln("git detetched, update skipped")
+			logrus.WithField("FETCHER", "goget").WithField("URL", url).WithField("REVISION", revision).Warnln("Repo detetched, update skipped")
 		}
 	}
 

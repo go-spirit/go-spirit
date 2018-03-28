@@ -54,28 +54,24 @@ func (p *GitFetcher) Fetch(url, revision string, update bool, repoConf config.Co
 		return
 	}
 
-	absWorkDir, existDir := utils.FindPkgPathByGOPATH(strGOPATH, dir)
+	absWorkDir := ""
+	needClone := true
+	pkgPath := filepath.Join(dir, repoName)
+	gopath, absPkgDir, existDir := utils.FindPkgPathByGOPATH(strGOPATH, pkgPath)
+
 	if !existDir {
-		gopaths := strings.Split(absWorkDir, ":")
-		absWorkDir = filepath.Join(gopaths[0], "src", dir)
-	}
+		gopaths := strings.Split(strGOPATH, ":")
+		gopath = gopaths[0]
+		absWorkDir = filepath.Join(gopath, "src", dir)
+		absPkgDir = filepath.Join(gopath, "src", pkgPath)
 
-	absRepoDir := filepath.Join(absWorkDir, repoName)
-
-	err = os.MkdirAll(absWorkDir, 0755)
-	if err != nil {
-		return
-	}
-
-	exist, err := utils.DirExist(absRepoDir)
-	if err != nil {
-		return
-	}
-
-	needClone := !exist
-
-	if len(revision) == 0 {
-		revision = "master"
+		err = os.MkdirAll(absWorkDir, 0755)
+		if err != nil {
+			return
+		}
+	} else {
+		needClone = false
+		absWorkDir = filepath.Join(gopath, "src", dir)
 	}
 
 	if needClone {
@@ -84,31 +80,32 @@ func (p *GitFetcher) Fetch(url, revision string, update bool, repoConf config.Co
 			return
 		}
 		update = false
-		logrus.WithField("fetcher", "git").WithField("url", url).WithField("revision", revision).Infoln("fetched")
+		logrus.WithField("FETCHER", "git").WithField("URL", url).WithField("REVISION", revision).Infoln("Fetched")
 	}
 
-	err = utils.GitCheckout(absRepoDir, revision)
-	if err != nil {
-		return
+	if len(revision) > 0 {
+		err = utils.GitCheckout(absPkgDir, revision)
+		if err != nil {
+			return
+		}
+		logrus.WithField("FETCHER", "git").WithField("URL", url).WithField("REVISION", revision).Infoln("Checked out")
 	}
-
-	logrus.WithField("fetcher", "git").WithField("url", url).WithField("revision", revision).Infoln("checked out")
 
 	if update {
 		var deteched bool
-		deteched, err = utils.GitDetached(absRepoDir)
+		deteched, err = utils.GitDetached(absPkgDir)
 		if err != nil {
 			return
 		}
 
 		if !deteched {
-			err = utils.GitPull(absRepoDir, repoConf.GetStringList("args.pull")...)
+			err = utils.GitPull(absPkgDir, repoConf.GetStringList("args.pull")...)
 			if err != nil {
 				return
 			}
-			logrus.WithField("fetcher", "git").WithField("url", url).WithField("revision", revision).Infoln("updated")
+			logrus.WithField("FETCHER", "git").WithField("URL", url).WithField("REVISION", revision).Infoln("Updated")
 		} else {
-			logrus.WithField("fetcher", "git").WithField("url", url).WithField("revision", revision).Warnln("git detetched, update skipped")
+			logrus.WithField("FETCHER", "git").WithField("URL", url).WithField("REVISION", revision).Warnln("Repo detetched, update skipped")
 		}
 	}
 

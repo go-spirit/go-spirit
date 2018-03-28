@@ -68,7 +68,7 @@ func GoPath() string {
 	return strings.TrimSuffix(string(result), "\n")
 }
 
-func FindPkgPathByGOPATH(strGOPATH string, pkg string) (string, bool) {
+func FindPkgPathByGOPATH(strGOPATH string, pkg string) (string, string, bool) {
 	gopaths := strings.Split(strGOPATH, ":")
 
 	for _, gopath := range gopaths {
@@ -76,9 +76,9 @@ func FindPkgPathByGOPATH(strGOPATH string, pkg string) (string, bool) {
 		fi, err := os.Stat(absPath)
 
 		if err == nil && fi.IsDir() {
-			return absPath, true
+			return gopath, absPath, true
 		}
 	}
 
-	return "", false
+	return "", "", false
 }
