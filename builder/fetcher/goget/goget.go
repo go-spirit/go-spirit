@@ -56,12 +56,14 @@ func (p *GoGetFetcher) Fetch(url, revision string, update bool, repoConf config.
 		logrus.WithField("FETCHER", "goget").WithField("URL", url).WithField("REVISION", revision).Infoln("Fetched")
 	}
 
-	err = utils.GitCheckout(repoDir, revision)
-	if err != nil {
-		return
-	}
+	if len(revision) > 0 {
+		err = utils.GitCheckout(repoDir, revision)
+		if err != nil {
+			return
+		}
 
-	logrus.WithField("FETCHER", "goget").WithField("URL", url).WithField("REVISION", revision).Infoln("Checked out")
+		logrus.WithField("FETCHER", "goget").WithField("URL", url).WithField("REVISION", revision).Infoln("Checked out")
+	}
 
 	if update {
 

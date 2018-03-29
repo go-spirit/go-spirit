@@ -171,7 +171,7 @@ func (p *Project) getFetchRepos() (repos []*fetchRepo, err error) {
 			return
 		}
 
-		revision := repoConf.GetString("revision", "master")
+		revision := repoConf.GetString("revision")
 
 		r := &fetchRepo{
 			repoConf:   repoConf,
