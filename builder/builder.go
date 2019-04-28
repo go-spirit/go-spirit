@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/pborman/uuid"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-spirit/go-spirit/builder/fetcher"
@@ -223,7 +223,7 @@ func (p *Project) Build() (err error) {
 	}
 
 	mainName := fmt.Sprintf("main_spirit_%s.go", p.Name)
-	workdir := fmt.Sprintf("%s/%s", os.TempDir(), uuid.New())
+	workdir := fmt.Sprintf("%s/%s", os.TempDir(), uuid.New().String())
 
 	err = os.MkdirAll(workdir, 0755)
 	if err != nil {
