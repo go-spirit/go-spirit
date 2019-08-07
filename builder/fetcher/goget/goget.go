@@ -51,6 +51,13 @@ func (p *GoGetFetcher) Fetch(url, revision string, update bool, repoConf config.
 			return
 		}
 
+		_, repoDir, exist = utils.FindPkgPathByGOPATH(strGOPATH, url)
+
+		if !exist {
+			err = fmt.Errorf("get repo dir failure after go get %s", url)
+			return
+		}
+
 		update = false
 
 		logrus.WithField("FETCHER", "goget").WithField("URL", url).WithField("REVISION", revision).Infoln("Fetched")
