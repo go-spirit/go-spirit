@@ -24,35 +24,35 @@ func main() {
 	app.Version = "0.0.1"
 
 	app.Commands = cli.Commands{
-		cli.Command{
+		&cli.Command{
 			Name:   "pull",
 			Usage:  "pull project repositories",
 			Action: pull,
 			Flags: []cli.Flag{
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "config",
 					Usage: "config file",
 				},
-				cli.BoolFlag{
+				&cli.BoolFlag{
 					Name:  "update",
 					Usage: "update repo if exist",
 				},
-				cli.StringSliceFlag{
+				&cli.StringSliceFlag{
 					Name:  "name",
 					Usage: "project name",
 				},
 			},
 		},
-		cli.Command{
+		&cli.Command{
 			Name:   "build",
 			Usage:  "build project",
 			Action: build,
 			Flags: []cli.Flag{
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "config, c",
 					Usage: "config file",
 				},
-				cli.StringSliceFlag{
+				&cli.StringSliceFlag{
 					Name:  "name, n",
 					Usage: "project name",
 				},
@@ -61,12 +61,12 @@ func main() {
 	}
 
 	app.Flags = []cli.Flag{
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "log-level",
 			Value: "info",
 			Usage: "debug, info, warn, error, fatal, panic",
 		},
-		cli.StringSliceFlag{
+		&cli.StringSliceFlag{
 			Name:  "env",
 			Usage: "set process env, e.g.: --env GOPATH=/gopath --env X=Y",
 		},
@@ -85,8 +85,26 @@ func main() {
 	return
 }
 
+func getParentContext(ctx *cli.Context) *cli.Context {
+	if ctx == nil {
+		return nil
+	}
+
+	lineage := ctx.Lineage()
+
+	if len(lineage) == 0 {
+		return nil
+	}
+
+	return lineage[len(lineage)-1]
+
+}
+
 func initCommonFlags(ctx *cli.Context) (err error) {
-	strlvl := ctx.Parent().String("log-level")
+
+	ctxParent := getParentContext(ctx)
+
+	strlvl := ctxParent.String("log-level")
 
 	lvl, err := logrus.ParseLevel(strlvl)
 	if err != nil {
@@ -97,7 +115,7 @@ func initCommonFlags(ctx *cli.Context) (err error) {
 
 	logrus.WithField("LEVEL", strlvl).Debugln("Loglevel changed")
 
-	envs := ctx.Parent().StringSlice("env")
+	envs := ctxParent.StringSlice("env")
 
 	for _, env := range envs {
 		kv := strings.SplitN(env, "=", 2)
