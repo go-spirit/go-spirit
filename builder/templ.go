@@ -24,16 +24,16 @@ func main() {
 
 	app.Commands = append(
 		app.Commands,
-		cli.Command{
+		&cli.Command{
 			Name: "metadata",
 			Usage: "the metadata of when build this app",
 			Subcommands: cli.Commands{
-				cli.Command{
+				&cli.Command{
 					Name:   "revision",
 					Usage:  "show the packages revison",
 					Action: showRevision,
 				},
-				cli.Command{
+				&cli.Command{
 					Name:   "config",
 					Usage:  "show the configuration while build this app",
 					Action: showConfig,
