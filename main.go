@@ -85,26 +85,9 @@ func main() {
 	return
 }
 
-func getParentContext(ctx *cli.Context) *cli.Context {
-	if ctx == nil {
-		return nil
-	}
-
-	lineage := ctx.Lineage()
-
-	if len(lineage) == 0 {
-		return nil
-	}
-
-	return lineage[len(lineage)-1]
-
-}
-
 func initCommonFlags(ctx *cli.Context) (err error) {
 
-	ctxParent := getParentContext(ctx)
-
-	strlvl := ctxParent.String("log-level")
+	strlvl := ctx.String("log-level")
 
 	lvl, err := logrus.ParseLevel(strlvl)
 	if err != nil {
@@ -115,7 +98,7 @@ func initCommonFlags(ctx *cli.Context) (err error) {
 
 	logrus.WithField("LEVEL", strlvl).Debugln("Loglevel changed")
 
-	envs := ctxParent.StringSlice("env")
+	envs := ctx.StringSlice("env")
 
 	for _, env := range envs {
 		kv := strings.SplitN(env, "=", 2)
