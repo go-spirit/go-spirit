@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-spirit/cli"
 	"github.com/go-spirit/go-spirit/builder"
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli"
 )
 
 import (
