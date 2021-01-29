@@ -7,7 +7,7 @@ const mainTmpl = `package main
 import (
 	"fmt"
 	"github.com/sirupsen/logrus"
-	"github.com/go-spirit/cli"
+	"github.com/urfave/cli"
 
 	"github.com/go-spirit/spirit/cmd"
 )
