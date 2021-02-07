@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -251,7 +252,12 @@ func (p *Project) Build() (err error) {
 
 	logrus.WithField("PROJECT", p.Name).Debugln(mainSrc)
 
-	defer os.Remove(mainPath)
+	if os.Getenv("GO111MODULE") == "on" {
+		copyFile("go.mod", workdir+"/go.mod")
+		logrus.WithField("GO111MODULE", "on").Println("go.mod file copied")
+	}
+
+	// defer os.Remove(mainPath)
 
 	// go get before build
 	appendGetArgs := p.conf.GetStringList("build.args.go-get")
@@ -378,4 +384,24 @@ func (p *Builder) Pull(porj ...string) (err error) {
 		}
 	}
 	return
+}
+
+func copyFile(src, dst string) error {
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, in)
+	if err != nil {
+		return err
+	}
+	return out.Close()
 }
